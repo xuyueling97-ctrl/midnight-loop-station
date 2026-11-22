@@ -11,7 +11,7 @@ const assert = require("assert");
 
 const ROOT = path.join(__dirname, "..");
 const ART = path.join(__dirname, "artifacts");
-const GAME_URL = "file:///" + path.join(ROOT, "index.html").replace(/\\/g, "/");
+const GAME_URL = process.env.GAME_URL || ("file:///" + path.join(ROOT, "index.html").replace(/\\/g, "/"));
 const PORT = 9333;
 const EDGE_CANDIDATES = [
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
