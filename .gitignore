@@ -1,0 +1,14 @@
+# 本地备份与原始大图（不纳入仓库）
+backup/
+
+# Codely CLI 工作区配置与记忆
+.codely-cli/
+
+# 测试过程截图（本地生成）
+tests/artifacts/
+
+# 系统与临时文件
+Thumbs.db
+.DS_Store
+*.log
+node_modules/

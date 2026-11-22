@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>午夜零点：无限循环车站</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- 标题页 -->
+  <div id="titleScreen" class="overlay title-screen">
+    <div class="title-inner">
+      <h1>午夜零点</h1>
+      <p class="title-sub">无 限 循 环 车 站</p>
+      <p class="title-tag">一座停在 00:00 的车站，一辆不肯出发的列车。</p>
+      <div class="title-buttons">
+        <button id="btnNewGame" class="btn btn-primary">新游戏</button>
+        <button id="btnContinue" class="btn">继续游戏</button>
+        <button id="btnHelp" class="btn">玩法说明</button>
+      </div>
+      <p class="title-hint">双击 index.html 即可游玩 · 支持鼠标、键盘与触屏</p>
+    </div>
+  </div>
+
+  <!-- 帮助 -->
+  <div id="helpScreen" class="overlay hidden">
+    <div class="panel help-panel">
+      <h2>玩法说明</h2>
+      <ul>
+        <li>点击场景中的发光热点进行调查；人物热点可以对话。</li>
+        <li>底部按钮切换区域：站台 / 候车室 / 售票处 / 失物处。</li>
+        <li>每轮 5 分钟。列车进站后若不做出选择，时间归零将进入下一轮。</li>
+        <li>线索与"★ 记忆物品"跨轮保留；普通道具会被循环重置。</li>
+        <li>键盘：1-4 切换场景，B 背包，J 线索，Esc 关闭面板。</li>
+        <li>对话与面板打开时计时暂停，可安心阅读。</li>
+      </ul>
+      <button id="btnHelpClose" class="btn">关闭</button>
+    </div>
+  </div>
+
+  <!-- 游戏主界面 -->
+  <div id="game" class="hidden">
+    <header id="hud">
+      <div class="hud-left">
+        <span id="loopBadge" class="badge">第 1 夜</span>
+        <span id="sceneName" class="scene-name">站台</span>
+      </div>
+      <div class="hud-center">
+        <div id="clock" class="clock">05:00</div>
+        <div id="objective" class="objective"></div>
+      </div>
+      <div class="hud-right">
+        <button id="btnInventory" class="btn btn-small">背包</button>
+        <button id="btnClues" class="btn btn-small">线索</button>
+        <button id="btnSound" class="btn btn-small" title="声音开关">🔊</button>
+        <button id="btnMenu" class="btn btn-small">菜单</button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <img id="sceneBg" alt="场景背景">
+      <div id="hotspotLayer"></div>
+      <div id="banner" class="banner hidden"></div>
+    </main>
+
+    <nav id="sceneNav">
+      <button class="nav-btn" data-scene="platform">站台</button>
+      <button class="nav-btn" data-scene="waiting">候车室</button>
+      <button class="nav-btn" data-scene="ticket">售票处</button>
+      <button class="nav-btn" data-scene="lost">失物处</button>
+    </nav>
+
+    <!-- 对话框 -->
+    <div id="dialogPanel" class="dialog hidden">
+      <div class="dialog-head">
+        <img id="dialogPortrait" class="dialog-portrait hidden" alt="">
+        <div class="dialog-title" id="dialogTitle"></div>
+      </div>
+      <div class="dialog-lines" id="dialogLines"></div>
+      <div class="keypad hidden" id="keypadArea">
+        <div class="keypad-hint" id="keypadHint"></div>
+        <div class="keypad-display" id="keypadDisplay">____</div>
+        <div class="keypad-grid" id="keypadGrid"></div>
+        <div class="keypad-actions">
+          <button id="keypadClear" class="btn btn-small">清除</button>
+          <button id="keypadCancel" class="btn btn-small">取消</button>
+        </div>
+      </div>
+      <div class="dialog-choices" id="dialogChoices"></div>
+    </div>
+
+    <!-- 背包 -->
+    <aside id="inventoryPanel" class="side-panel hidden">
+      <div class="panel-head"><h2>背包</h2><button class="btn btn-small panel-close" data-close="inventoryPanel">关闭</button></div>
+      <div id="inventoryList" class="panel-body"></div>
+    </aside>
+
+    <!-- 线索 -->
+    <aside id="cluesPanel" class="side-panel hidden">
+      <div class="panel-head"><h2>线索记录</h2><button class="btn btn-small panel-close" data-close="cluesPanel">关闭</button></div>
+      <div id="cluesList" class="panel-body"></div>
+    </aside>
+
+    <!-- 菜单 -->
+    <aside id="menuPanel" class="side-panel hidden">
+      <div class="panel-head"><h2>菜单</h2><button class="btn btn-small panel-close" data-close="menuPanel">关闭</button></div>
+      <div class="panel-body menu-body">
+        <button id="btnSave" class="btn">保存进度</button>
+        <button id="btnLoad" class="btn">读取进度</button>
+        <button id="btnRestart" class="btn">回到标题</button>
+        <p class="save-hint" id="saveHint"></p>
+      </div>
+    </aside>
+
+    <!-- 循环过场 -->
+    <div id="loopScreen" class="overlay loop-screen hidden">
+      <div class="loop-inner">
+        <div class="loop-clock">00:00</div>
+        <p class="loop-text">列车进站了。时间被抹平，一切恢复原状。</p>
+        <p class="loop-text dim" id="loopKept"></p>
+      </div>
+    </div>
+
+    <!-- 结局 -->
+    <div id="endingScreen" class="overlay ending-screen hidden">
+      <div class="ending-inner">
+        <p class="ending-eyebrow" id="endingEyebrow"></p>
+        <h2 class="ending-title" id="endingTitle"></h2>
+        <p class="ending-sub" id="endingSub"></p>
+        <div class="ending-lines" id="endingLines"></div>
+        <div class="ending-buttons">
+          <button id="btnNextLoop" class="btn btn-primary">带着记忆，再来一轮</button>
+          <button id="btnToTitle" class="btn">回到标题</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 引导错误 -->
+  <div id="bootError" class="overlay hidden">
+    <div class="panel"><h2>无法启动</h2><p id="bootErrorText"></p></div>
+  </div>
+</div>
+
+<script src="scripts/data.js"></script>
+<script src="scripts/engine.js"></script>
+<script src="scripts/audio.js"></script>
+<script src="scripts/game.js"></script>
+</body>
+</html>
