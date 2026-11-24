@@ -11,8 +11,9 @@ const assert = require("assert");
 const root = path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 
-// 1. 资源引用检查
-const refs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1]);
+// 1. 资源引用检查（排除内联 data: URI 与外部绝对地址）
+const refs = [...html.matchAll(/(?:href|src)="([^"]+)"/g)].map((m) => m[1])
+  .filter((ref) => !/^(data:|https?:|\/\/|#)/i.test(ref));
 for (const ref of refs) {
   const file = path.join(root, ref);
   assert.ok(fs.existsSync(file), "missing referenced asset: " + ref);

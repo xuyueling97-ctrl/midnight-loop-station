@@ -153,5 +153,16 @@
     if (!m && ctx && ctx.state === "suspended") ctx.resume();
   }
 
-  window.MidnightAudio = { init, sfx, setMuted, isMuted: function () { return muted; } };
+  function getState() {
+    return {
+      started: started,
+      muted: muted,
+      ctxState: ctx ? ctx.state : "none",
+      musicMode: musicEl ? "file" : (musicTimer ? "synth" : "none"),
+      musicPaused: musicEl ? musicEl.paused : null,
+      musicVolume: musicEl ? musicEl.volume : null,
+    };
+  }
+
+  window.MidnightAudio = { init, sfx, setMuted, isMuted: function () { return muted; }, getState };
 })();

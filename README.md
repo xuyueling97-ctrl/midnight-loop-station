@@ -2,9 +2,11 @@
 
 一款像素风悬疑解谜网页小游戏。你在午夜醒来，被困在一座时钟永远指向 00:00 的车站。每当列车进站，时间便会重置——但有些东西，不会随着循环消失。
 
-**版本**：V0.1 · **类型**：点击探索 / 时间循环 / 多结局 · **技术**：原生 HTML + CSS + JavaScript（零依赖）
+**版本**：V0.1-rc（候选测试版） · **类型**：点击探索 / 时间循环 / 多结局 · **技术**：原生 HTML + CSS + JavaScript（零依赖）
 
 **在线试玩（GitHub Pages）**：https://xuyueling97-ctrl.github.io/midnight-loop-station/
+
+> 当前为候选测试版本：桌面与手机仿真测试已通过；物理手机真机、Firefox / Safari 实机尚待独立玩家验证，未验证项不视为通过。
 
 ---
 
@@ -50,7 +52,10 @@ tests/
   engine.test.js      引擎自动化测试（12 项）
   ui-smoke.js         资源引用与启动冒烟测试（3 项）
   browser-e2e.js      真浏览器三结局 E2E（Edge headless + CDP）
+  system-check.js     维护专项：音频 / 触屏命中 / 小屏布局 / 存档降级
 DEV_REPORT.md         开发与测试报告
+MAINTENANCE_REPORT.md 第一轮维护报告
+CHANGELOG.md          版本更新日志（含历史开发者署名）
 AUDIT_REPORT.md       早期独立审计报告（历史存档）
 ```
 
@@ -62,6 +67,8 @@ AUDIT_REPORT.md       早期独立审计报告（历史存档）
 node tests/engine.test.js    # 引擎逻辑：循环、记忆、三结局路径等 12 项
 node tests/ui-smoke.js       # 资源引用 / 元素 ID / 启动冒烟
 node tests/browser-e2e.js    # 真浏览器跑通普通、真、隐藏三结局并截图（需本机 Edge 或 Chrome）
+node tests/system-check.js   # 维护专项：音频状态 / 真实触屏命中 / 小屏布局 / 存档降级
+# 可选：MOBILE=1 手机视口仿真；GAME_URL=<地址> 指定线上页面
 ```
 
 ## 实现说明
@@ -73,4 +80,12 @@ node tests/browser-e2e.js    # 真浏览器跑通普通、真、隐藏三结局�
 
 ## 已知限制
 
-见 `DEV_REPORT.md` 的"遗留问题清单"。
+见 `DEV_REPORT.md` 与 `MAINTENANCE_REPORT.md` 的遗留问题与待验证清单。
+
+## 开发与维护署名
+
+- **Kimi**：初始剧情设定、场景与数据设计、早期开发。
+- **DeepSeek**：独立审计（见 `AUDIT_REPORT.md`）。
+- **Codely 接手团队**：引擎修复与补全、UI、测试体系、资源接入、移动适配、GitHub 发布及第一轮维护。
+
+详见 `CHANGELOG.md`。
