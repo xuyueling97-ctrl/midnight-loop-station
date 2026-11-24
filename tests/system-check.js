@@ -76,6 +76,8 @@ async function testAudio() {
   assert.ok(await evalJs(`!!window.MidnightAudio`), "MidnightAudio 已加载");
   await tapSelector("#btnNewGame", false); // 真实点击，触发 pointerdown 解锁音频
   await sleep(400);
+  // 线上配乐需下载，等待 play() 完成（成功进入 file，失败回退 synth）
+  await waitFor(`(()=>{const s=window.MidnightAudio.getState();return s.musicMode==='file'||s.musicMode==='synth';})()`, 12000, "音乐层启动");
   const s1 = await evalJs(audioState);
   assert.ok(s1 && s1.started, "首次点击后音频已初始化");
   console.log("  状态:", JSON.stringify(s1));
