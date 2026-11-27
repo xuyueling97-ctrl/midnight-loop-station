@@ -152,8 +152,11 @@
     ui.endingScreen.classList.add("hidden");
     ui.loopScreen.classList.add("hidden");
     ui.game.classList.remove("hidden");
+    closeDialog();
+    [ui.inventoryPanel, ui.cluesPanel, ui.menuPanel].forEach((panel) => panel.classList.add("hidden"));
     renderScene();
     updateHud();
+    if (restoreEnding()) return;
     save();
     startTimer();
   }
@@ -174,6 +177,14 @@
       renderScene();
       updateHud();
     }, 2200);
+  }
+
+  function restoreEnding() {
+    const { status, ending } = engine.state;
+    if (status !== "ended" || !ending) return false;
+    ui.menuPanel.classList.add("hidden");
+    showEnding(engine.endingResult(ending));
+    return true;
   }
 
   function showEnding(result) {
@@ -343,13 +354,17 @@
       b.addEventListener("click", () => $(b.dataset.close).classList.add("hidden"));
     });
 
-    $("btnSave").addEventListener("click", () => { save(); ui.saveHint.textContent = "已保存。"; });
+    $("btnSave").addEventListener("click", () => {
+      if (save()) ui.saveHint.textContent = "已保存。";
+    });
     $("btnLoad").addEventListener("click", () => {
       const saved = loadSave();
       if (!saved) { ui.saveHint.textContent = "没有找到存档。"; return; }
       engine = new Engine(saved);
       closeDialog();
-      renderScene(); updateHud(); save();
+      renderScene(); updateHud();
+      if (restoreEnding()) return;
+      save();
       ui.saveHint.textContent = "已读取存档。";
     });
     $("btnRestart").addEventListener("click", toTitle);

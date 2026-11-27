@@ -243,6 +243,19 @@ function testSaveRoundTrip() {
   assert.strictEqual(e4.state.loop, 1);
   assert.deepStrictEqual(e4.state.inventory, ["photoA"]);
   assert.deepStrictEqual(e4.state.clues, ["tape"]);
+  // A damaged ending-only field must not lock a playable save at 00:00.
+  const stale = new Engine({
+    version: 1, loop: 3, timeLeft: 0, status: "ended", ending: "unknown-ending",
+    clues: ["tape"], meta: { completedLoops: 2 }
+  });
+  assert.strictEqual(stale.state.status, "playing");
+  assert.strictEqual(stale.state.ending, null);
+  assert.strictEqual(stale.state.timeLeft, DATA.LOOP_SECONDS);
+  assert.strictEqual(stale.state.loop, 3);
+  assert.deepStrictEqual(stale.state.clues, ["tape"]);
+  assert.strictEqual(stale.state.meta.completedLoops, 2);
+  stale.tick(1);
+  assert.strictEqual(stale.state.timeLeft, DATA.LOOP_SECONDS - 1);
   console.log("PASS save round-trip / corrupt input");
 }
 

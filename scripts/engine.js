@@ -72,13 +72,16 @@
       clean.loop = Number.isFinite(raw.loop) && raw.loop > 0 ? Math.floor(raw.loop) : 1;
       clean.timeLeft = Number.isFinite(raw.timeLeft) ? Math.max(0, Math.min(DATA.LOOP_SECONDS, raw.timeLeft)) : DATA.LOOP_SECONDS;
       clean.scene = DATA.SCENES[raw.scene] ? raw.scene : "platform";
-      clean.status = raw.status === "ended" ? "ended" : "playing";
       clean.inventory = Array.isArray(raw.inventory) ? [...new Set(raw.inventory.filter((id) => DATA.ITEMS[id]))] : [];
       clean.clues = Array.isArray(raw.clues) ? [...new Set(raw.clues.filter((id) => DATA.CLUES[id]))] : [];
       clean.flags = Object.assign(worldFlags(), raw.flags || {});
       clean.memory = Object.assign(freshMemory(), raw.memory || {});
       clean.stats = Object.assign(clean.stats, raw.stats || {});
-      clean.ending = DATA.ENDINGS[raw.ending] ? raw.ending : null;
+      clean.ending = typeof raw.ending === "string" && Object.hasOwn(DATA.ENDINGS, raw.ending) ? raw.ending : null;
+      if (raw.status === "ended") {
+        if (clean.ending) clean.status = "ended";
+        else if (clean.timeLeft === 0) clean.timeLeft = DATA.LOOP_SECONDS;
+      }
       if (clean.clues.includes("timetable") && clean.clues.includes("drawing") && !clean.clues.includes("lockerCode")) clean.clues.push("lockerCode");
       return clean;
     }
@@ -585,6 +588,11 @@
       this.state.timeLeft = 0;
       this.state.meta[type + "Seen"] = true;
       this.state.meta.completedLoops = (this.state.meta.completedLoops || 0) + 1;
+      return this.endingResult(type);
+    }
+
+    endingResult(type) {
+      const data = DATA.ENDINGS[type];
       const closing = {
         normal: ["车门在你身后合拢。窗外的女孩抱着纸鹤，朝你挥了挥手。", "列车驶入隧道。你醒来时，时钟的指针又回到了 00:00。", "——你离开了站台，却没有离开那一天。"],
         true: ["你牵起她的手。这一次，你没有把任何一个自己留在身后。", "列车驶向隧道尽头。那里有真正的 00:07，和一整片海。"],
