@@ -256,7 +256,31 @@ function testSaveRoundTrip() {
   assert.strictEqual(stale.state.meta.completedLoops, 2);
   stale.tick(1);
   assert.strictEqual(stale.state.timeLeft, DATA.LOOP_SECONDS - 1);
-  console.log("PASS save round-trip / corrupt input");
+  const hasOwn = Object.hasOwn;
+  let compatible;
+  try {
+    Object.hasOwn = undefined;
+    compatible = Engine.fromJSON(json);
+  } finally {
+    Object.hasOwn = hasOwn;
+  }
+  assert.strictEqual(compatible.state.ending, "true");
+  assert.ok(compatible.state.memory.girlTruth);
+  const restored = new Engine({
+    flags: { clockFixed: true, unusedField: true },
+    memory: { girlTruth: true, unusedField: true },
+    stats: { dialogues: 3, unusedField: true },
+    meta: { completedLoops: 99999, unusedField: true },
+  });
+  assert.strictEqual(restored.state.flags.clockFixed, true);
+  assert.strictEqual(restored.state.memory.girlTruth, true);
+  assert.strictEqual(restored.state.stats.dialogues, 3);
+  assert.strictEqual(restored.state.meta.completedLoops, 99999);
+  for (const record of [restored.state.flags, restored.state.memory, restored.state.stats, restored.state.meta]) {
+    assert.strictEqual(Object.getPrototypeOf(record), Object.prototype);
+    assert.strictEqual(record.unusedField, undefined);
+  }
+  console.log("PASS save round-trip / corrupt input / legacy runtime");
 }
 
 function testAllHotspotsNoCrash() {

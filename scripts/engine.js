@@ -36,6 +36,14 @@
     };
   }
 
+  function restoreFields(defaults, saved) {
+    if (!saved || typeof saved !== "object") return defaults;
+    for (const key of Object.keys(defaults)) {
+      if (Object.prototype.hasOwnProperty.call(saved, key)) defaults[key] = saved[key];
+    }
+    return defaults;
+  }
+
   function freshState(meta) {
     return {
       version: 1,
@@ -47,7 +55,7 @@
       clues: [],
       flags: worldFlags(),
       memory: freshMemory(),
-      meta: Object.assign({ normalSeen: false, trueSeen: false, hiddenSeen: false, completedLoops: 0 }, meta || {}),
+      meta: restoreFields({ normalSeen: false, trueSeen: false, hiddenSeen: false, completedLoops: 0 }, meta),
       stats: { inspections: 0, dialogues: 0, resets: 0 },
       ending: null
     };
@@ -74,10 +82,11 @@
       clean.scene = DATA.SCENES[raw.scene] ? raw.scene : "platform";
       clean.inventory = Array.isArray(raw.inventory) ? [...new Set(raw.inventory.filter((id) => DATA.ITEMS[id]))] : [];
       clean.clues = Array.isArray(raw.clues) ? [...new Set(raw.clues.filter((id) => DATA.CLUES[id]))] : [];
-      clean.flags = Object.assign(worldFlags(), raw.flags || {});
-      clean.memory = Object.assign(freshMemory(), raw.memory || {});
-      clean.stats = Object.assign(clean.stats, raw.stats || {});
-      clean.ending = typeof raw.ending === "string" && Object.hasOwn(DATA.ENDINGS, raw.ending) ? raw.ending : null;
+      restoreFields(clean.flags, raw.flags);
+      restoreFields(clean.memory, raw.memory);
+      restoreFields(clean.stats, raw.stats);
+      const validEnding = typeof raw.ending === "string" && Object.prototype.hasOwnProperty.call(DATA.ENDINGS, raw.ending);
+      clean.ending = validEnding ? raw.ending : null;
       if (raw.status === "ended") {
         if (clean.ending) clean.status = "ended";
         else if (clean.timeLeft === 0) clean.timeLeft = DATA.LOOP_SECONDS;
